@@ -65,13 +65,29 @@ class TwentyFortyEight extends StatefulWidget {
   State<TwentyFortyEight> createState() => TwentyFortyEightState();
 }
 
-class TwentyFortyEightState extends State<TwentyFortyEight> {
+class TwentyFortyEightState extends State<TwentyFortyEight>
+    with SingleTickerProviderStateMixin {
+  // Need to add "with TickerProviderStateMixin" to use "this" as a vsync correct field value
+  late AnimationController controller;
   List<List<Tile>> grid = List.generate(
     4,
     (y) => List.generate(4, (x) => Tile(x, y, 0)),
   );
-
   Iterable<Tile> get flattenedGrid => grid.expand((e) => e);
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+
+    grid[1][2].val = 4;
+    grid[3][2].val = 16;
+
+    flattenedGrid.forEach((element) => element.resetAnimation());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +112,32 @@ class TwentyFortyEightState extends State<TwentyFortyEight> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+
+    stackItems.addAll(
+      flattenedGrid.map(
+        (e) => AnimatedBuilder(
+          animation: controller,
+          builder: (context, child) => e.animatedValue.value == 0
+              ? SizedBox()
+              : Positioned(
+                  left: e.x * tileSize,
+                  top: e.y * tileSize,
+                  width: tileSize,
+                  height: tileSize,
+                  child: Center(
+                    child: Container(
+                      width: tileSize - 4.0 * 2,
+                      height: tileSize - 4.0 * 2,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: numTileColor[e.animatedValue.value],
+                      ),
+                    ),
+                  ),
+                ),
         ),
       ),
     );
