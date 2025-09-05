@@ -130,12 +130,22 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
       }
     });
 
-    grid[1][2].val = 4;
-    grid[0][2].val = 4;
-    grid[3][2].val = 16;
-    grid[0][0].val = 16;
+    initGrid();
 
-    flattenedGrid.forEach((element) => element.resetAnimation());
+    // flattenedGrid.forEach((element) => element.resetAnimation());
+  }
+
+  void initGrid() {
+    setState(() {
+      grid = List.generate(4, (y) => List.generate(4, (x) => Tile(x, y, 0)));
+      
+      grid[1][2].val = 4;
+      grid[0][2].val = 4;
+      grid[3][2].val = 16;
+      grid[0][0].val = 16;
+      
+      flattenedGrid.forEach((element) => element.resetAnimation());
+    });
   }
 
   void addNewtile() {
@@ -176,7 +186,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     stackItems.addAll(
       [flattenedGrid, toAdd]
           .expand((e) => e)
-          .map( 
+          .map(
             (e) => AnimatedBuilder(
               animation: controller,
               builder: (context, child) => e.animatedValue.value == 0
@@ -216,40 +226,52 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     return Scaffold(
       backgroundColor: tan,
       body: Center(
-        child: Container(
-          width: gridSize,
-          height: gridSize,
-          padding: EdgeInsets.all(4.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            color: darkBrown,
-          ),
-          child: GestureDetector(
-            onVerticalDragEnd: (details) {
-              if (details.velocity.pixelsPerSecond.dy < -250 && canSwipeUp()) {
-                // swipe up
-                doSwipe(swipeUp);
-              } else if (details.velocity.pixelsPerSecond.dy > 250 &&
-                  canSwipeDown()) {
-                // swipe down
-                doSwipe(swipeDown);
-              }
-            },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                initGrid();
+              },
+              child: Text("Replay"),
+            ),
+            Container(
+              width: gridSize,
+              height: gridSize,
+              padding: EdgeInsets.all(4.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                color: darkBrown,
+              ),
+              child: GestureDetector(
+                onVerticalDragEnd: (details) {
+                  if (details.velocity.pixelsPerSecond.dy < -250 &&
+                      canSwipeUp()) {
+                    // swipe up
+                    doSwipe(swipeUp);
+                  } else if (details.velocity.pixelsPerSecond.dy > 250 &&
+                      canSwipeDown()) {
+                    // swipe down
+                    doSwipe(swipeDown);
+                  }
+                },
 
-            onHorizontalDragEnd: (details) {
-              if (details.velocity.pixelsPerSecond.dx < -1000 &&
-                  canSwipeLeft()) {
-                // swipe left
-                doSwipe(swipeLeft);
-              } else if (details.velocity.pixelsPerSecond.dx > 1000 &&
-                  canSwipeRight()) {
-                // swipe right
-                doSwipe(swipeRight);
-              }
-            },
+                onHorizontalDragEnd: (details) {
+                  if (details.velocity.pixelsPerSecond.dx < -1000 &&
+                      canSwipeLeft()) {
+                    // swipe left
+                    doSwipe(swipeLeft);
+                  } else if (details.velocity.pixelsPerSecond.dx > 1000 &&
+                      canSwipeRight()) {
+                    // swipe right
+                    doSwipe(swipeRight);
+                  }
+                },
 
-            child: Stack(children: stackItems),
-          ),
+                child: Stack(children: stackItems),
+              ),
+            ),
+          ],
         ),
       ),
     );
