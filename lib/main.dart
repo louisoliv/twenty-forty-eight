@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 const Color lightBrown = Color.fromARGB(255, 205, 193, 180);
 const Color darkBrown = Color.fromARGB(255, 187, 173, 160);
 const Color tan = Color.fromARGB(255, 238, 228, 218);
-const Color greyRext = Color.fromARGB(255, 119, 110, 101);
+const Color greyText = Color.fromARGB(255, 119, 110, 101);
 
 const Map<int, Color> numTileColor = {
   2: tan,
@@ -74,6 +74,8 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     (y) => List.generate(4, (x) => Tile(x, y, 0)),
   );
   Iterable<Tile> get flattenedGrid => grid.expand((e) => e);
+  Iterable<List<Tile>> get cols =>
+      List.generate(4, (x) => List.generate(4, (y) => grid[y][x]));
 
   @override
   void initState() {
@@ -82,6 +84,13 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        flattenedGrid.forEach((element) {
+          element.resetAnimation();
+        });
+      }
+    });
 
     grid[1][2].val = 4;
     grid[3][2].val = 16;
@@ -135,6 +144,18 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                         borderRadius: BorderRadius.circular(10.0),
                         color: numTileColor[e.animatedValue.value],
                       ),
+                      child: Center(
+                        child: Text(
+                          "${e.animatedValue.value}",
+                          style: TextStyle(
+                            color: e.animatedValue.value <= 4
+                                ? greyText
+                                : Colors.white,
+                            fontSize: 35,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -153,9 +174,101 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
             borderRadius: BorderRadius.circular(10.0),
             color: darkBrown,
           ),
-          child: Stack(children: stackItems),
+          child: GestureDetector(
+            onVerticalDragEnd: (details) {
+              if (details.velocity.pixelsPerSecond.dy < -250 && canSwipeUp()) {
+                // swipe up
+                doSwipe(swipeUp);
+              } else if (details.velocity.pixelsPerSecond.dy > 250 &&
+                  canSwipeDown()) {
+                // swipe down
+                doSwipe(swipeDown);
+              }
+            },
+
+            onHorizontalDragEnd: (details) {
+              if (details.velocity.pixelsPerSecond.dx < -1000 &&
+                  canSwipeLeft()) {
+                // swipe left
+                doSwipe(swipeLeft);
+              } else if (details.velocity.pixelsPerSecond.dx > 1000 &&
+                  canSwipeRight()) {
+                // swipe right
+                doSwipe(swipeRight);
+              }
+            },
+
+            child: Stack(children: stackItems),
+          ),
         ),
       ),
     );
+  }
+
+  void doSwipe(void Function() swipeFn) {
+    setState(() {
+      swipeFn();
+      // add new tile
+      controller.forward(from: 0);
+    });
+  }
+
+  bool canSwipeLeft() => grid.any(canSwipe);
+  bool canSwipeRight() => grid.map((e) => e.reversed.toList()).any(canSwipe);
+  bool canSwipeUp() => cols.any(canSwipe);
+  bool canSwipeDown() => cols.map((e) => e.reversed.toList()).any(canSwipe);
+
+  bool canSwipe(List<Tile> tiles) {
+    for (int i = 0; i < tiles.length; i++) {
+      if (tiles[i].val == 0) {
+        if (tiles.skip(i + 1).any((e) => e.val != 0)) {
+          return true;
+        }
+      } else {
+        Tile? nextNonZero = tiles
+            .skip(i + 1)
+            .cast<Tile?>()
+            .firstWhere((e) => e!.val != 0, orElse: () => null);
+        if (nextNonZero != null && nextNonZero.val == tiles[i].val) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  void swipeLeft() => grid.forEach(mergeTiles);
+  void swipeRight() => grid.map((e) => e.reversed.toList()).forEach(mergeTiles);
+  void swipeUp() => cols.forEach(mergeTiles);
+  void swipeDown() => cols.map((e) => e.reversed.toList()).forEach(mergeTiles);
+
+  void mergeTiles(List<Tile> tiles) {
+    for (int i = 0; i < tiles.length; i++) {
+      Iterable<Tile> toCheck = tiles
+          .skip(i)
+          .skipWhile((value) => value.val == 0);
+      if (toCheck.isNotEmpty) {
+        Tile t = toCheck.first;
+        Tile? merge = toCheck
+            .skip(1)
+            .cast<Tile?>()
+            .firstWhere((t) => t!.val != 0, orElse: () => null);
+        if (merge != null && merge.val != t.val) {
+          merge = null;
+        }
+        if (tiles[i] != t || merge != null) {
+          int resultValue = t.val;
+          // animate the tile position at position t
+
+          if (merge != null) {
+            resultValue += merge.val;
+            // move the merge tile
+            merge.val = 0;
+          }
+          t.val = 0;
+          tiles[i].val = resultValue;
+        }
+      }
+    }
   }
 }
