@@ -111,6 +111,9 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
   Iterable<List<Tile>> get cols =>
       List.generate(4, (x) => List.generate(4, (y) => grid[y][x]));
 
+  int score = 0;
+  int best_score = 0;
+
   @override
   void initState() {
     super.initState();
@@ -127,6 +130,33 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
           element.resetAnimation();
         });
         toAdd.clear();
+
+        if (isGameOver()) {
+          print("GAME OVER DÉTECTÉ APRÈS ANIMATION");
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Game Over"),
+                  content: Text("Ton score est $score"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        setState(() {
+                          initGrid();
+                        });
+                      },
+                      child: Text("Rejouer"),
+                    ),
+                  ],
+                );
+              },
+            );
+          });
+        }
       }
     });
 
@@ -137,13 +167,32 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
 
   void initGrid() {
     setState(() {
+      score = 0;
       grid = List.generate(4, (y) => List.generate(4, (x) => Tile(x, y, 0)));
-      
+
+      // grid[1][2].val = 4;
+      // grid[0][2].val = 4;
+      // grid[3][2].val = 16;
+      // grid[0][0].val = 16;
+
+      // Grid example to trigger faster the alert dialog widget
+      grid[0][0].val = 2;
+      grid[0][1].val = 4;
+      grid[0][2].val = 2;
+      grid[0][3].val = 4;
+      grid[1][0].val = 4;
+      grid[1][1].val = 2;
       grid[1][2].val = 4;
-      grid[0][2].val = 4;
-      grid[3][2].val = 16;
-      grid[0][0].val = 16;
-      
+      grid[1][3].val = 2;
+      grid[2][0].val = 2;
+      grid[2][1].val = 4;
+      grid[2][2].val = 2;
+      grid[2][3].val = 4;
+      grid[3][0].val = 4;
+      grid[3][1].val = 16;
+      grid[3][2].val = 4;
+      // grid[3][3].val = 2;
+
       flattenedGrid.forEach((element) => element.resetAnimation());
     });
   }
@@ -154,6 +203,19 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
         .toList();
     empty.shuffle();
     toAdd.add(Tile(empty.first.x, empty.first.y, 2)..appear(controller));
+  }
+
+  bool isGameOver() {
+    bool canUp = canSwipeUp();
+    bool canDown = canSwipeDown();
+    bool canLeft = canSwipeLeft();
+    bool canRight = canSwipeRight();
+
+    print(
+      "DEBUG isGameOver - Up: $canUp, Down: $canDown, Left: $canLeft, Right: $canRight",
+    );
+
+    return !canUp && !canDown && !canLeft && !canRight;
   }
 
   @override
@@ -229,11 +291,36 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text('Score : $score'),
             ElevatedButton(
               onPressed: () {
-                initGrid();
+                // Force game over pour tester
+                if (isGameOver()) {
+                  print("SHOWING GAME OVER DIALOG");
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Game Over"),
+                        content: Text("Ton score est $score"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                initGrid();
+                              });
+                            },
+                            child: Text("Rejouer"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
-              child: Text("Replay"),
+              child: Text("Test Game Over"),
             ),
             Container(
               width: gridSize,
@@ -278,12 +365,66 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
   }
 
   void doSwipe(void Function() swipeFn) {
+    debugGameState(); // Ajoutez cette ligne pour voir l'état
+
     setState(() {
       swipeFn();
-      // add new tile
-      addNewtile();
+      print(
+        "Après swipe - canSwipeUp: ${canSwipeUp()}, canSwipeDown: ${canSwipeDown()}, canSwipeLeft: ${canSwipeLeft()}, canSwipeRight: ${canSwipeRight()}",
+      );
+      if (!isGameOver()) {
+        addNewtile();
+      } else {
+        print("GAME OVER détecté");
+      }
       controller.forward(from: 0);
     });
+
+    if (isGameOver()) {
+      print("SHOWING GAME OVER DIALOG"); // Debug
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Game Over"),
+              content: Text("Ton score est $score"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      initGrid();
+                    });
+                  },
+                  child: Text("Rejouer"),
+                ),
+              ],
+            );
+          },
+        );
+      });
+    }
+  }
+
+  void debugGameState() {
+    print("=== DEBUG GAME STATE ===");
+    print("Can swipe left: ${canSwipeLeft()}");
+    print("Can swipe right: ${canSwipeRight()}");
+    print("Can swipe up: ${canSwipeUp()}");
+    print("Can swipe down: ${canSwipeDown()}");
+    print("Is game over: ${isGameOver()}");
+
+    print("\nGrid state:");
+    for (int y = 0; y < 4; y++) {
+      String row = "";
+      for (int x = 0; x < 4; x++) {
+        row += "${grid[y][x].val.toString().padLeft(4)} ";
+      }
+      print(row);
+    }
+    print("========================");
   }
 
   bool canSwipeLeft() => grid.any(canSwipe);
@@ -292,22 +433,42 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
   bool canSwipeDown() => cols.map((e) => e.reversed.toList()).any(canSwipe);
 
   bool canSwipe(List<Tile> tiles) {
-    for (int i = 0; i < tiles.length; i++) {
-      if (tiles[i].val == 0) {
-        if (tiles.skip(i + 1).any((e) => e.val != 0)) {
-          return true;
-        }
-      } else {
-        Tile? nextNonZero = tiles
-            .skip(i + 1)
-            .cast<Tile?>()
-            .firstWhere((e) => e!.val != 0, orElse: () => null);
-        if (nextNonZero != null && nextNonZero.val == tiles[i].val) {
-          return true;
-        }
+    // 1. S'il y a des espaces vides, on peut toujours bouger
+    if (tiles.any((tile) => tile.val == 0)) {
+      return true;
+    }
+
+    // 2. S'il n'y a pas d'espaces vides, vérifier s'il y a des fusions possibles
+    for (int i = 0; i < tiles.length - 1; i++) {
+      if (tiles[i].val == tiles[i + 1].val) {
+        return true; // Deux tuiles adjacentes identiques peuvent fusionner
       }
     }
+
     return false;
+  }
+
+  List<int> mergeValues(List<int> values) {
+    List<int> result = List.filled(4, 0);
+    List<int> nonZero = values.where((v) => v != 0).toList();
+
+    int resultIndex = 0;
+    int i = 0;
+
+    while (i < nonZero.length) {
+      if (i < nonZero.length - 1 && nonZero[i] == nonZero[i + 1]) {
+        // Fusion possible
+        result[resultIndex] = nonZero[i] * 2;
+        i += 2; // Skip both tiles
+      } else {
+        // Pas de fusion
+        result[resultIndex] = nonZero[i];
+        i += 1;
+      }
+      resultIndex++;
+    }
+
+    return result;
   }
 
   void swipeLeft() => grid.forEach(mergeTiles);
@@ -335,6 +496,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
           t.moveTo(controller, tiles[i].x, tiles[i].y);
           if (merge != null) {
             resultValue += merge.val;
+            score += merge.val * 2;
             // move the merge tile
             merge.moveTo(controller, tiles[i].x, tiles[i].y);
             merge.bounce(controller);
