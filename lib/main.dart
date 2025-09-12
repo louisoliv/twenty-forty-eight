@@ -100,12 +100,14 @@ class TwentyFortyEight extends StatefulWidget {
 class TwentyFortyEightState extends State<TwentyFortyEight>
     with SingleTickerProviderStateMixin {
   // Need to add "with TickerProviderStateMixin" to use "this" as a vsync correct field value
+
   late AnimationController controller;
   List<List<Tile>> grid = List.generate(
     4,
     (y) => List.generate(4, (x) => Tile(x, y, 0)),
   );
   List<Tile> toAdd = [];
+  bool _isInitialized = false; // Ajout d'un flag d'initialisation
 
   Iterable<Tile> get flattenedGrid => grid.expand((e) => e);
   Iterable<List<Tile>> get cols =>
@@ -117,6 +119,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
   @override
   void initState() {
     super.initState();
+    print("IN INIT STATE !");
     controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
@@ -167,6 +170,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
 
   void initGrid() {
     setState(() {
+      print("IN INIT GRID MF");
       score = 0;
       grid = List.generate(4, (y) => List.generate(4, (x) => Tile(x, y, 0)));
 
@@ -194,6 +198,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
       // grid[3][3].val = 2;
 
       flattenedGrid.forEach((element) => element.resetAnimation());
+      _isInitialized = true;
     });
   }
 
@@ -219,10 +224,26 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    // Initialiser la grille au premier build
+    // if (!_isInitialized) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     initGrid();
+    //   });
+    //   // Retourner un écran de chargement en attendant
+    //   return Scaffold(
+    //     backgroundColor: tan,
+    //     body: Center(child: CircularProgressIndicator()),
+    //   );
+    // }
+    print("in the build");
+
     double gridSize = MediaQuery.of(context).size.width - 16.0 * 2;
     double tileSize = (gridSize - 4.0 * 2) / 4;
     List<Widget> stackItems = [];
+
+    print("before stackItems build");
 
     stackItems.addAll(
       flattenedGrid.map(
@@ -264,7 +285,9 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                           height: (tileSize - 4.0 * 2) * e.scale.value,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10.0),
-                            color: numTileColor[e.animatedValue.value],
+                            color:
+                                numTileColor[e.animatedValue.value] ??
+                                lightBrown,
                           ),
                           child: Center(
                             child: Text(
@@ -286,15 +309,26 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     );
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text("ER"),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              initGrid();
+            },
+            child: Text("Reset"),
+          ),
+        ],
+      ),
       backgroundColor: tan,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            ElevatedButton(onPressed: () => initGrid(), child: Text("Reset")),
             Text('Score : $score'),
             ElevatedButton(
               onPressed: () {
-                // Force game over pour tester
                 if (isGameOver()) {
                   print("SHOWING GAME OVER DIALOG");
                   showDialog(
@@ -334,27 +368,21 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                 onVerticalDragEnd: (details) {
                   if (details.velocity.pixelsPerSecond.dy < -250 &&
                       canSwipeUp()) {
-                    // swipe up
                     doSwipe(swipeUp);
                   } else if (details.velocity.pixelsPerSecond.dy > 250 &&
                       canSwipeDown()) {
-                    // swipe down
                     doSwipe(swipeDown);
                   }
                 },
-
                 onHorizontalDragEnd: (details) {
                   if (details.velocity.pixelsPerSecond.dx < -1000 &&
                       canSwipeLeft()) {
-                    // swipe left
                     doSwipe(swipeLeft);
                   } else if (details.velocity.pixelsPerSecond.dx > 1000 &&
                       canSwipeRight()) {
-                    // swipe right
                     doSwipe(swipeRight);
                   }
                 },
-
                 child: Stack(children: stackItems),
               ),
             ),
