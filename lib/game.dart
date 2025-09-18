@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const Color lightBrown = Color.fromARGB(255, 205, 193, 180);
 const Color darkBrown = Color.fromARGB(255, 187, 173, 160);
@@ -110,12 +111,13 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
       List.generate(4, (x) => List.generate(4, (y) => grid[y][x]));
 
   int score = 0;
-  int best_score = 0;
+  int bestScore = 0;
 
   @override
   void initState() {
     super.initState();
     print("IN INIT STATE !");
+    loadBestScore();
     controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
@@ -132,6 +134,8 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
 
         if (isGameOver()) {
           print("GAME OVER DÉTECTÉ APRÈS ANIMATION");
+          // ScoreManager.saveScore(score).then((isNewBest) {
+          ScoreManager.saveScore(score);
           WidgetsBinding.instance.addPostFrameCallback((_) {
             showDialog(
               context: context,
@@ -152,6 +156,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                         Navigator.of(context).pop();
                         setState(() {
                           initGrid();
+                          loadBestScore();
                         });
                       },
                       child: Text(
@@ -178,6 +183,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
               },
             );
           });
+          // });
         }
       }
     });
@@ -185,6 +191,13 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     initGrid();
 
     // flattenedGrid.forEach((element) => element.resetAnimation());
+  }
+
+  Future<void> loadBestScore() async {
+    final best = await ScoreManager.getBestScore();
+    setState(() {
+      bestScore = best;
+    });
   }
 
   void initGrid() {
@@ -409,7 +422,13 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                 children: [
                   Container(
                     child: ElevatedButton(
-                      onPressed: () => initGrid(),
+                      onPressed: () => {
+                        setState(() {
+                          initGrid();
+                          loadBestScore();
+                        }),
+                      },
+
                       child: Icon(Icons.restart_alt),
                     ),
                   ),
@@ -426,7 +445,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                         vertical: 10,
                       ),
                       child: Text(
-                        "Best score : ",
+                        "Best score : $bestScore",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -467,6 +486,8 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
 
     if (isGameOver()) {
       print("SHOWING GAME OVER DIALOG"); // Debug
+      // ScoreManager.saveScore(score).then((isNewBest) {
+      ScoreManager.saveScore(score);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
           context: context,
@@ -481,6 +502,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                     Navigator.of(context).pop();
                     setState(() {
                       initGrid();
+                      loadBestScore();
                     });
                   },
                   child: Text("Rejouer"),
@@ -490,6 +512,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
           },
         );
       });
+      // });
     }
   }
 
@@ -594,5 +617,23 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
         }
       }
     }
+  }
+}
+
+class ScoreManager {
+  static Future<bool> saveScore(int score) async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentBest = prefs.getInt('best_score') ?? 0;
+
+    if (score > currentBest) {
+      await prefs.setInt('best_score', score);
+      return true; // Nouveau record
+    }
+    return false;
+  }
+
+  static Future<int> getBestScore() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('best_score') ?? 0;
   }
 }

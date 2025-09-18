@@ -22,7 +22,7 @@ class MenuScreen extends StatelessWidget {
     Color shadowColor = Colors.cyan;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 17, 17, 16),
+      backgroundColor: Color.fromARGB(255, 17, 17, 16),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -32,7 +32,7 @@ class MenuScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 60,
                 fontWeight: FontWeight.bold,
-                color: const Color.fromARGB(255, 252, 252, 252),
+                color:  Color.fromARGB(255, 252, 252, 252),
                 fontFamily: 'Aerospace',
                 shadows: [
                   for (double i = 1; i < 4; i++)
@@ -119,39 +119,6 @@ class MenuScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-
-            // Container(
-            //   decoration: BoxDecoration(
-            //     borderRadius: BorderRadius.circular(10),
-            //     boxShadow: [
-            //       // for (double i = 1; i < 5; i++)
-            //       //   BoxShadow(
-            //       //     color: const Color.fromARGB(255, 211, 67, 67),
-            //       //     blurRadius: 4 * i,
-            //       //   ),
-            //     ],
-            //   ),
-            //   child: TextButton(
-            //     onPressed: () {},
-            //     style: TextButton.styleFrom(
-            //       side: BorderSide(color: Colors.white, width: 2),
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(10),
-            //       ),
-            //     ),
-            //     child: Text(
-            //       "Jouer",
-            //       style: TextStyle(
-            //         color: Colors.white,
-            //         fontFamily: 'Orbix',
-            //         shadows: [
-            //           for (double i = 1; i < 4; i++)
-            //             Shadow(color: shadowColor, blurRadius: 3 * i),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
           ],
         ),
       ),
