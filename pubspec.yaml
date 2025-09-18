@@ -75,9 +75,18 @@ flutter:
   fonts:
     - family: Orbix
       fonts:
-        - asset: fonts/Orbix.ttf
+        - asset: fonts/Orbix-Regular.ttf
+          weight: 400
+          style: normal
     - family: Space
       fonts:
         - asset: fonts/space.ttf
+          weight: 400
+          style: normal
+    - family: Aerospace
+      fonts:
+        - asset: fonts/Aerospace.ttf
+          weight: 400
+          style: normal
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

@@ -6,17 +6,28 @@ const Color tan = Color.fromARGB(255, 238, 228, 218);
 const Color greyText = Color.fromARGB(255, 119, 110, 101);
 
 const Map<int, Color> numTileColor = {
-  2: tan,
-  4: tan,
-  8: Color.fromARGB(255, 242, 177, 121),
-  16: Color.fromARGB(255, 245, 149, 99),
-  32: Color.fromARGB(255, 246, 124, 95),
-  64: Color.fromARGB(255, 246, 95, 64),
-  128: Color.fromARGB(255, 235, 208, 117),
-  256: Color.fromARGB(255, 235, 203, 103),
-  512: Color.fromARGB(255, 236, 201, 85),
-  1024: Color.fromARGB(255, 229, 194, 90),
-  2048: Color.fromARGB(255, 232, 192, 70),
+  // 2: tan,
+  // 4: tan,
+  // 8: Color.fromARGB(255, 242, 177, 121),
+  // 16: Color.fromARGB(255, 245, 149, 99),
+  // 32: Color.fromARGB(255, 246, 124, 95),
+  // 64: Color.fromARGB(255, 246, 95, 64),
+  // 128: Color.fromARGB(255, 235, 208, 117),
+  // 256: Color.fromARGB(255, 235, 203, 103),
+  // 512: Color.fromARGB(255, 236, 201, 85),
+  // 1024: Color.fromARGB(255, 229, 194, 90),
+  // 2048: Color.fromARGB(255, 232, 192, 70),
+  2: Color.fromRGBO(178, 235, 242, 1),
+  4: Color.fromARGB(255, 128, 222, 234),
+  8: Color.fromARGB(255, 178, 236, 242),
+  16: Color.fromARGB(255, 151, 225, 245),
+  32: Color.fromARGB(255, 124, 214, 246),
+  64: Color.fromARGB(255, 95, 203, 246),
+  128: Color.fromARGB(255, 117, 235, 235),
+  256: Color.fromARGB(255, 103, 235, 225),
+  512: Color.fromARGB(255, 85, 236, 215),
+  1024: Color.fromARGB(255, 90, 229, 205),
+  2048: Color.fromARGB(255, 70, 232, 195),
 };
 
 class Tile {
@@ -127,8 +138,14 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
               barrierDismissible: false,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("Game Over"),
-                  content: Text("Ton score est $score"),
+                  title: Text(
+                    "Game Over",
+                    style: TextStyle(fontFamily: 'Orbix'),
+                  ),
+                  content: Text(
+                    "Ton score est $score",
+                    style: TextStyle(fontFamily: 'Orbix'),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -137,14 +154,24 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                           initGrid();
                         });
                       },
-                      child: Text("Rejouer"),
+                      child: Text(
+                        "Rejouer",
+                        style: TextStyle(fontFamily: 'Orbix'),
+                      ),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         Navigator.of(context).pop();
+                        print("object");
                       },
-                      child: Text("Menu"),
+                      child: Text(
+                        "Menu",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Orbix',
+                        ),
+                      ),
                     ),
                   ],
                 );
@@ -235,6 +262,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     List<Widget> stackItems = [];
 
     print("before stackItems build");
+    Color shadowColor = Colors.cyan;
 
     stackItems.addAll(
       flattenedGrid.map(
@@ -249,7 +277,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
               height: tileSize - 4.0 * 2,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.0),
-                color: lightBrown,
+                color: const Color.fromARGB(255, 0, 0, 0),
               ),
             ),
           ),
@@ -275,6 +303,18 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                           width: (tileSize - 4.0 * 2) * e.scale.value,
                           height: (tileSize - 4.0 * 2) * e.scale.value,
                           decoration: BoxDecoration(
+                            boxShadow: [
+                              for (double i = 1; i < 2; i++)
+                                BoxShadow(
+                                  color: const Color.fromARGB(
+                                    255,
+                                    243,
+                                    243,
+                                    243,
+                                  ),
+                                  blurRadius: 5 * i,
+                                ),
+                            ],
                             borderRadius: BorderRadius.circular(10.0),
                             color:
                                 numTileColor[e.animatedValue.value] ??
@@ -285,10 +325,11 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                               "${e.animatedValue.value}",
                               style: TextStyle(
                                 color: e.animatedValue.value <= 4
-                                    ? greyText
+                                    ? const Color.fromARGB(255, 65, 60, 57)
                                     : Colors.white,
                                 fontSize: 35,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: 'Aerospace',
                               ),
                             ),
                           ),
@@ -300,13 +341,13 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     );
 
     return Scaffold(
-      backgroundColor: tan,
+      backgroundColor: const Color.fromARGB(255, 17, 17, 16),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Card(
-              color: Colors.blue,
+              color: const Color.fromARGB(255, 35, 22, 114),
               elevation: 4,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -319,6 +360,11 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    fontFamily: 'Orbix',
+                    shadows: [
+                      for (double i = 1; i < 4; i++)
+                        Shadow(color: shadowColor, blurRadius: 10 * i),
+                    ],
                   ),
                 ),
               ),
@@ -329,8 +375,9 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
               height: gridSize,
               padding: EdgeInsets.all(4.0),
               decoration: BoxDecoration(
+                // border: Border.all(color: Colors.white),
                 borderRadius: BorderRadius.circular(10.0),
-                color: darkBrown,
+                color: const Color.fromARGB(255, 31, 31, 31),
               ),
               child: GestureDetector(
                 onVerticalDragEnd: (details) {
@@ -368,7 +415,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                   ),
                   SizedBox(width: 20),
                   Card(
-                    color: Colors.blue,
+                    color: const Color.fromARGB(255, 35, 22, 114),
                     elevation: 4,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -384,6 +431,11 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          fontFamily: 'Orbix',
+                          shadows: [
+                            for (double i = 1; i < 4; i++)
+                              Shadow(color: shadowColor, blurRadius: 10 * i),
+                          ],
                         ),
                       ),
                     ),
