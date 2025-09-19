@@ -1,24 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
+import 'score_manager.dart';
 
 const Color lightBrown = Color.fromARGB(255, 205, 193, 180);
-// const Color darkBrown = Color.fromARGB(255, 187, 173, 160);
-// const Color tan = Color.fromARGB(255, 238, 228, 218);
-// const Color greyText = Color.fromARGB(255, 119, 110, 101);
 
 const Map<int, Color> numTileColor = {
-  // 2: tan,
-  // 4: tan,
-  // 8: Color.fromARGB(255, 242, 177, 121),
-  // 16: Color.fromARGB(255, 245, 149, 99),
-  // 32: Color.fromARGB(255, 246, 124, 95),
-  // 64: Color.fromARGB(255, 246, 95, 64),
-  // 128: Color.fromARGB(255, 235, 208, 117),
-  // 256: Color.fromARGB(255, 235, 203, 103),
-  // 512: Color.fromARGB(255, 236, 201, 85),
-  // 1024: Color.fromARGB(255, 229, 194, 90),
-  // 2048: Color.fromARGB(255, 232, 192, 70),
   2: Color.fromRGBO(178, 235, 242, 1),
   4: Color.fromARGB(255, 128, 222, 234),
   8: Color.fromARGB(255, 178, 236, 242),
@@ -117,7 +103,6 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
   @override
   void initState() {
     super.initState();
-    print("IN INIT STATE !");
     loadBestScore();
     controller = AnimationController(
       vsync: this,
@@ -134,8 +119,6 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
         toAdd.clear();
 
         if (isGameOver()) {
-          print("GAME OVER DÉTECTÉ APRÈS ANIMATION");
-          // ScoreManager.saveScore(score).then((isNewBest) {
           ScoreManager.saveScore(score);
           WidgetsBinding.instance.addPostFrameCallback((_) {
             showDialog(
@@ -190,8 +173,6 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     });
 
     initGrid();
-
-    // flattenedGrid.forEach((element) => element.resetAnimation());
   }
 
   Future<void> loadBestScore() async {
@@ -203,33 +184,10 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
 
   void initGrid() {
     setState(() {
-      print("IN INIT GRID MF");
       score = 0;
       final random = Random();
 
       grid = List.generate(4, (y) => List.generate(4, (x) => Tile(x, y, 0)));
-
-      // grid[1][2].val = 4;
-      // grid[0][2].val = 4;
-      // grid[3][2].val = 16;
-      // grid[0][0].val = 16;
-
-      // Grid example to trigger faster the alert dialog widget
-      // grid[0][0].val = 2;
-      // grid[0][1].val = 4;
-      // grid[0][2].val = 2;
-      // grid[0][3].val = 4;
-      // grid[1][0].val = 4;
-      // grid[1][1].val = 2;
-      // grid[1][2].val = 4;
-      // grid[1][3].val = 2;
-      // grid[2][0].val = 2;
-      // grid[2][1].val = 4;
-      // grid[2][2].val = 2;
-      // grid[2][3].val = 4;
-      // grid[3][0].val = 4;
-      // grid[3][1].val = 16;
-      // grid[3][2].val = 4;
 
       int tilesCount = 2 + random.nextInt(2);
 
@@ -241,7 +199,6 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
           y = random.nextInt(4);
         } while (grid[y][x].val != 0);
 
-        // Placer 2 (90%) ou 4 (10%)
         // Place 2 (90%) or 4 (10%)
         grid[y][x].val = random.nextDouble() < 0.9 ? 2 : 4;
       }
@@ -265,33 +222,14 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     bool canLeft = canSwipeLeft();
     bool canRight = canSwipeRight();
 
-    print(
-      "DEBUG isGameOver - Up: $canUp, Down: $canDown, Left: $canLeft, Right: $canRight",
-    );
-
     return !canUp && !canDown && !canLeft && !canRight;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Initialiser la grille au premier build
-    // if (!_isInitialized) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     initGrid();
-    //   });
-    //   // Retourner un écran de chargement en attendant
-    //   return Scaffold(
-    //     backgroundColor: tan,
-    //     body: Center(child: CircularProgressIndicator()),
-    //   );
-    // }
-    print("in the build");
-
     double gridSize = MediaQuery.of(context).size.width - 16.0 * 2;
     double tileSize = (gridSize - 4.0 * 2) / 4;
     List<Widget> stackItems = [];
-
-    print("before stackItems build");
     Color shadowColor = Colors.cyan;
 
     stackItems.addAll(
@@ -433,6 +371,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                 child: Stack(children: stackItems),
               ),
             ),
+
             Container(
               width: gridSize,
               margin: EdgeInsets.only(top: 16.0), // Espace au-dessus de la row
@@ -451,6 +390,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                       child: Icon(Icons.restart_alt),
                     ),
                   ),
+
                   SizedBox(width: 5),
 
                   Container(
@@ -499,13 +439,11 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
   }
 
   void doSwipe(void Function() swipeFn) {
-    debugGameState(); // Ajoutez cette ligne pour voir l'état
+    debugGameState();
 
     setState(() {
       swipeFn();
-      print(
-        "Après swipe - canSwipeUp: ${canSwipeUp()}, canSwipeDown: ${canSwipeDown()}, canSwipeLeft: ${canSwipeLeft()}, canSwipeRight: ${canSwipeRight()}",
-      );
+
       if (!isGameOver()) {
         addNewtile();
       } else {
@@ -515,8 +453,6 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     });
 
     if (isGameOver()) {
-      print("SHOWING GAME OVER DIALOG"); // Debug
-      // ScoreManager.saveScore(score).then((isNewBest) {
       ScoreManager.saveScore(score);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
@@ -571,15 +507,15 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
   bool canSwipeDown() => cols.map((e) => e.reversed.toList()).any(canSwipe);
 
   bool canSwipe(List<Tile> tiles) {
-    // 1. S'il y a des espaces vides, on peut toujours bouger
+    // 1. If there are empty spaces, we can move
     if (tiles.any((tile) => tile.val == 0)) {
       return true;
     }
 
-    // 2. S'il n'y a pas d'espaces vides, vérifier s'il y a des fusions possibles
+    // 2. If there are no empty spaces, check if fusions are possible
     for (int i = 0; i < tiles.length - 1; i++) {
       if (tiles[i].val == tiles[i + 1].val) {
-        return true; // Deux tuiles adjacentes identiques peuvent fusionner
+        return true; // 2 identical sided tiles can fusion
       }
     }
 
@@ -599,7 +535,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
         result[resultIndex] = nonZero[i] * 2;
         i += 2; // Skip both tiles
       } else {
-        // Pas de fusion
+        // No fusion
         result[resultIndex] = nonZero[i];
         i += 1;
       }
@@ -630,12 +566,12 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
         }
         if (tiles[i] != t || merge != null) {
           int resultValue = t.val;
-          // animate the tile position at position t
+          // Animate the tile position at position t
           t.moveTo(controller, tiles[i].x, tiles[i].y);
           if (merge != null) {
             resultValue += merge.val;
             score += merge.val * 2;
-            // move the merge tile
+            // Move the merge tile
             merge.moveTo(controller, tiles[i].x, tiles[i].y);
             merge.bounce(controller);
             merge.changeNumber(controller, resultValue);
@@ -647,23 +583,5 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
         }
       }
     }
-  }
-}
-
-class ScoreManager {
-  static Future<bool> saveScore(int score) async {
-    final prefs = await SharedPreferences.getInstance();
-    final currentBest = prefs.getInt('best_score') ?? 0;
-
-    if (score > currentBest) {
-      await prefs.setInt('best_score', score);
-      return true; // Nouveau record
-    }
-    return false;
-  }
-
-  static Future<int> getBestScore() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('best_score') ?? 0;
   }
 }
