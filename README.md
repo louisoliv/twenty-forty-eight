@@ -61,4 +61,15 @@ Twenty-Forty-Eight is a sliding puzzle game where the objective is to combine nu
 - **Animation System**: Flutter animations for smooth tile movements
 - **Score System**: Real-time scoring with high score tracking
 
+## View
+
+<p align="center", display: "flex"; flex-direction: "column">
+  <img src="./assets/TFE_home_sreen.jpg" width="300" />
+   <p align="center"><i>Home screen</i></p>
+</p>
+<p align="center", display: "flex"; flex-direction: "column">
+  <img src="./assets/TFE_game_sreen.jpg" width="300" />
+   <p align="center"><i>Game screen</i></p>
+</p>
+
 _Created in April 2014 - A tribute to the original 2048 game concept_
