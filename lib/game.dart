@@ -3,9 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 
 const Color lightBrown = Color.fromARGB(255, 205, 193, 180);
-const Color darkBrown = Color.fromARGB(255, 187, 173, 160);
-const Color tan = Color.fromARGB(255, 238, 228, 218);
-const Color greyText = Color.fromARGB(255, 119, 110, 101);
+// const Color darkBrown = Color.fromARGB(255, 187, 173, 160);
+// const Color tan = Color.fromARGB(255, 238, 228, 218);
+// const Color greyText = Color.fromARGB(255, 119, 110, 101);
 
 const Map<int, Color> numTileColor = {
   // 2: tan,
@@ -57,11 +57,11 @@ class Tile {
     animatedX = Tween(
       begin: this.x.toDouble(),
       end: x.toDouble(),
-    ).animate(CurvedAnimation(parent: parent, curve: Interval(0, .5)));
+    ).animate(CurvedAnimation(parent: parent, curve: Interval(0, .8)));
     animatedY = Tween(
       begin: this.y.toDouble(),
       end: y.toDouble(),
-    ).animate(CurvedAnimation(parent: parent, curve: Interval(0, .5)));
+    ).animate(CurvedAnimation(parent: parent, curve: Interval(0, .8)));
   }
 
   void bounce(Animation<double> parent) {
@@ -399,7 +399,9 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                 ),
               ),
             ),
-            SizedBox(height: 20),
+
+            SizedBox(height: 5),
+
             Container(
               width: gridSize,
               height: gridSize,
@@ -449,7 +451,18 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                       child: Icon(Icons.restart_alt),
                     ),
                   ),
-                  SizedBox(width: 20),
+                  SizedBox(width: 5),
+
+                  Container(
+                    child: ElevatedButton(
+                      onPressed: () => {Navigator.of(context).pop()},
+
+                      child: Icon(Icons.home),
+                    ),
+                  ),
+
+                  SizedBox(width: 5),
+
                   Card(
                     color: const Color.fromARGB(255, 35, 22, 114),
                     elevation: 4,
@@ -458,7 +471,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
                     ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 20,
+                        horizontal: 10,
                         vertical: 10,
                       ),
                       child: Text(
