@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
 
 const Color lightBrown = Color.fromARGB(255, 205, 193, 180);
 const Color darkBrown = Color.fromARGB(255, 187, 173, 160);
@@ -204,6 +205,8 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
     setState(() {
       print("IN INIT GRID MF");
       score = 0;
+      final random = Random();
+
       grid = List.generate(4, (y) => List.generate(4, (x) => Tile(x, y, 0)));
 
       // grid[1][2].val = 4;
@@ -212,22 +215,36 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
       // grid[0][0].val = 16;
 
       // Grid example to trigger faster the alert dialog widget
-      grid[0][0].val = 2;
-      grid[0][1].val = 4;
-      grid[0][2].val = 2;
-      grid[0][3].val = 4;
-      grid[1][0].val = 4;
-      grid[1][1].val = 2;
-      grid[1][2].val = 4;
-      grid[1][3].val = 2;
-      grid[2][0].val = 2;
-      grid[2][1].val = 4;
-      grid[2][2].val = 2;
-      grid[2][3].val = 4;
-      grid[3][0].val = 4;
-      grid[3][1].val = 16;
-      grid[3][2].val = 4;
-      // grid[3][3].val = 2;
+      // grid[0][0].val = 2;
+      // grid[0][1].val = 4;
+      // grid[0][2].val = 2;
+      // grid[0][3].val = 4;
+      // grid[1][0].val = 4;
+      // grid[1][1].val = 2;
+      // grid[1][2].val = 4;
+      // grid[1][3].val = 2;
+      // grid[2][0].val = 2;
+      // grid[2][1].val = 4;
+      // grid[2][2].val = 2;
+      // grid[2][3].val = 4;
+      // grid[3][0].val = 4;
+      // grid[3][1].val = 16;
+      // grid[3][2].val = 4;
+
+      int tilesCount = 2 + random.nextInt(2);
+
+      for (int i = 0; i < tilesCount; i++) {
+        // Find empty position
+        int x, y;
+        do {
+          x = random.nextInt(4);
+          y = random.nextInt(4);
+        } while (grid[y][x].val != 0);
+
+        // Placer 2 (90%) ou 4 (10%)
+        // Place 2 (90%) or 4 (10%)
+        grid[y][x].val = random.nextDouble() < 0.9 ? 2 : 4;
+      }
 
       flattenedGrid.forEach((element) => element.resetAnimation());
       _isInitialized = true;
