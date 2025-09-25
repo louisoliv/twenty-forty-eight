@@ -189,7 +189,7 @@ class TwentyFortyEightState extends State<TwentyFortyEight>
 
       grid = List.generate(4, (y) => List.generate(4, (x) => Tile(x, y, 0)));
 
-      int tilesCount = 2 + random.nextInt(2);
+      int tilesCount = 3 + random.nextInt(3);
 
       for (int i = 0; i < tilesCount; i++) {
         // Find empty position
